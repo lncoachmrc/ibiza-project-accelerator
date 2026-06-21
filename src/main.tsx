@@ -4,6 +4,9 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import App from "./App.tsx";
 import "./index.css";
 import { CLERK_ENABLED, CLERK_PUBLISHABLE_KEY } from "./lib/config";
+import { initLanguage } from "./lib/i18n";
+
+initLanguage();
 
 const app = (
   <HelmetProvider>
