@@ -8,14 +8,36 @@ import { tr } from "@/lib/i18n";
 
 const mediaRoot = String.fromCharCode(104,116,116,112,115,58,47,47,101,105,118,105,116,101,99,104,46,99,111,109,47,119,112,45,99,111,110,116,101,110,116,47,117,112,108,111,97,100,115,47,50,48,50,49,47,48,56,47);
 const mediaUrl = (name: string) => `${mediaRoot}${name}`;
+const localMediaUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
 type GalleryItem = { src: string; alt: string; portrait?: boolean };
+type ProjectMedia = { hero: string; gallery: GalleryItem[]; video?: { src: string; poster: string; title: string; description: string } };
 
 function getProjectPath(project: Project) {
-  return project.slug === "apartamento-marina-botafoch" ? "/proyectos/apartamento-marina-botafoc" : `/proyectos/${project.slug}`;
+  if (project.slug === "apartamento-marina-botafoch") return "/proyectos/apartamento-marina-botafoc";
+  if (project.slug === "casa-sant-josep") return "/proyectos/sant-josep-de-sa-talaia";
+  return `/proyectos/${project.slug}`;
 }
 
-function getProjectMedia(project: Project) {
+function getProjectMedia(project: Project): ProjectMedia {
+  if (project.slug === "casa-sant-josep") {
+    const hero = mediaUrl("casa-lujo-sant-josep-2.jpg");
+    return {
+      hero,
+      gallery: [
+        { src: mediaUrl("casa-lujo-sant-josep-2.jpg"), alt: tr("Vista aérea de la villa y la piscina en Sant Josep de sa Talaia", "Vista aerea della villa e della piscina a Sant Josep de sa Talaia", "Aerial view of the villa and pool in Sant Josep de sa Talaia") },
+        { src: mediaUrl("casa-lujo-sant-josep-1.jpg"), alt: tr("Vista superior del acceso ajardinado y la finca", "Vista dall'alto dell'accesso paesaggistico e della proprietà", "Top view of the landscaped access and estate") },
+        { src: mediaUrl("casa-lujo-sant-josep-3.jpg"), alt: tr("Panorámica del entorno natural de Sant Josep con vistas al valle", "Panoramica dell'ambiente naturale di Sant Josep con vista sulla valle", "Panoramic natural setting in Sant Josep with valley views") },
+      ],
+      video: {
+        src: localMediaUrl("media/projects/sant-josep-de-sa-talaia/sant-josep-video.mp4"),
+        poster: hero,
+        title: tr("Recorrido en vídeo de la finca", "Tour video della proprietà", "Video walkthrough of the estate"),
+        description: tr("Un vídeo 16:9 ayuda a entender la escala real del entorno, los accesos, la piscina y la relación de la vivienda con el paisaje.", "Un video 16:9 aiuta a comprendere la scala reale dell'ambiente, gli accessi, la piscina e il rapporto della casa con il paesaggio.", "A 16:9 video helps show the true scale of the setting, access, pool and the relationship between the house and landscape."),
+      },
+    };
+  }
+
   if (project.slug === "urbanizacion-valverde") {
     return {
       hero: mediaUrl("terraza-casita-valverde-4-1024x576.jpg"),
@@ -24,7 +46,7 @@ function getProjectMedia(project: Project) {
         { src: mediaUrl("terraza-casita-valverde-1-576x1024.jpg"), alt: tr("Detalle del pavimento exterior en madera de Indonesia", "Dettaglio della pavimentazione esterna in legno indonesiano", "Detail of the Indonesian wood decking"), portrait: true },
         { src: mediaUrl("terraza-casita-valverde-3-1024x576.jpg"), alt: tr("Zona exterior con cama de madera y vistas al entorno rural", "Zona esterna con letto in legno e vista sull'ambiente rurale", "Outdoor area with wooden daybed and rural views") },
         { src: mediaUrl("terraza-casita-valverde-4-1024x576.jpg"), alt: tr("Muro de piedra ibicenca y tarima exterior de madera", "Muro in pietra ibizenca e pavimentazione esterna in legno", "Ibizan stone wall and outdoor wood decking") },
-      ] as GalleryItem[],
+      ],
     };
   }
 
@@ -34,7 +56,7 @@ function getProjectMedia(project: Project) {
       gallery: [
         { src: mediaUrl("true-bar-2.jpeg"), alt: tr("Terraza exterior del proyecto True Bar", "Terrazza esterna del progetto True Bar", "Outdoor terrace of the True Bar project") },
         { src: mediaUrl("true-bar-1-576x1024.jpeg"), alt: tr("Fachada blanca del proyecto True Bar", "Facciata bianca del progetto True Bar", "White facade of the True Bar project"), portrait: true },
-      ] as GalleryItem[],
+      ],
     };
   }
 
@@ -52,14 +74,38 @@ function getProjectMedia(project: Project) {
         { src: mediaUrl("marina-botafoch-apartamento-03-1024x768.jpg"), alt: tr("Vista amplia de la cocina y mobiliario integrado", "Vista ampia della cucina e degli arredi integrati", "Wide view of the kitchen and integrated furniture") },
         { src: mediaUrl("marina-botafoch-apartamento-02.jpg"), alt: tr("Detalle de isla y encimera negra", "Dettaglio dell'isola e del piano nero", "Detail of the island and black countertop") },
         { src: mediaUrl("marina-botafoch-apartamento-01.jpg"), alt: tr("Cocina terminada con líneas limpias y almacenaje a medida", "Cucina completata con linee pulite e contenimento su misura", "Finished kitchen with clean lines and custom storage") },
-      ] as GalleryItem[],
+      ],
     };
   }
 
-  return { hero: project.image, gallery: [] as GalleryItem[] };
+  return { hero: project.image, gallery: [] };
 }
 
 function getProjectPresentation(project: Project) {
+  if (project.slug === "casa-sant-josep") {
+    return {
+      ...project,
+      name: "Sant Josep de sa Talaia",
+      zone: "Sant Josep de sa Talaia, Ibiza",
+      type: tr("Villa", "Villa", "Villa"),
+      intervention: tr("Exterior, accesos y zona piscina", "Esterni, accessi e zona piscina", "Outdoor areas, access and pool zone"),
+      short: tr("Intervención exterior en una villa de Sant Josep de sa Talaia, con accesos, entorno ajardinado, piscina y una relación visual directa con el paisaje.", "Intervento esterno in una villa a Sant Josep de sa Talaia, con accessi, paesaggio curato, piscina e un rapporto visivo diretto con il panorama.", "Outdoor intervention in a villa in Sant Josep de sa Talaia, with access routes, landscaped surroundings, pool area and a strong visual connection with the landscape."),
+      situation: tr("Villa ubicada en un entorno natural elevado, con una finca amplia, vistas abiertas y necesidad de ordenar los accesos exteriores para que la llegada a la propiedad estuviera a la altura del contexto.", "Villa situata in un ambiente naturale elevato, con una proprietà ampia, viste aperte e la necessità di ordinare gli accessi esterni perché l'arrivo alla casa fosse all'altezza del contesto.", "A villa located in an elevated natural setting, with a large estate, open views and the need to organise the outdoor access so the arrival experience matched the quality of the setting."),
+      goal: tr("Crear una llegada más elegante, funcional y coherente con la arquitectura de la vivienda, integrando caminos, zonas exteriores, piscina y vegetación mediterránea sin competir con el paisaje.", "Creare un arrivo più elegante, funzionale e coerente con l'architettura della casa, integrando percorsi, aree esterne, piscina e vegetazione mediterranea senza competere con il paesaggio.", "Create a more elegant, functional arrival experience aligned with the architecture, integrating paths, outdoor areas, pool and Mediterranean vegetation without competing with the landscape."),
+      works: [
+        tr("Ordenación del acceso exterior y recorrido de llegada", "Organizzazione dell'accesso esterno e del percorso di arrivo", "Outdoor access and arrival route organisation"),
+        tr("Adecuación de caminos, zonas de paso y entorno ajardinado", "Adeguamento di percorsi, zone di passaggio e paesaggio esterno", "Upgrade of paths, circulation areas and landscaped surroundings"),
+        tr("Integración visual de la piscina con la vivienda y el paisaje", "Integrazione visiva della piscina con la casa e il paesaggio", "Visual integration of the pool with the house and landscape"),
+        tr("Selección de materiales exteriores sobrios y resistentes", "Selezione di materiali esterni sobri e resistenti", "Selection of sober and durable outdoor materials"),
+        tr("Preparación de contenido visual aéreo y vídeo para mostrar la escala real del proyecto", "Preparazione di contenuti visivi aerei e video per mostrare la scala reale del progetto", "Aerial and video content prepared to show the true scale of the project"),
+      ],
+      materials: [tr("Grava exterior", "Ghiaia esterna", "Outdoor gravel"), tr("Piedra y caminos", "Pietra e percorsi", "Stone and paths"), tr("Vegetación mediterránea", "Vegetazione mediterranea", "Mediterranean planting"), tr("Piscina", "Piscina", "Pool"), tr("Vistas abiertas", "Viste aperte", "Open views")],
+      result: tr("Una finca con una presencia mucho más ordenada y atractiva: el acceso, la piscina y el entorno natural trabajan juntos para transmitir amplitud, privacidad y valor desde el primer vistazo.", "Una proprietà con una presenza molto più ordinata e attraente: accesso, piscina e ambiente naturale lavorano insieme per trasmettere ampiezza, privacy e valore fin dal primo sguardo.", "An estate with a far more ordered and attractive presence: access, pool and natural surroundings work together to communicate space, privacy and value at first sight."),
+      metaTitle: tr("Sant Josep de sa Talaia — Villa exterior y piscina | Eivitech Ibiza", "Sant Josep de sa Talaia — Villa, esterni e piscina | Eivitech Ibiza", "Sant Josep de sa Talaia — Villa outdoor areas and pool | Eivitech Ibiza"),
+      metaDescription: tr("Proyecto exterior en Sant Josep de sa Talaia: accesos, entorno ajardinado, piscina, vistas abiertas y contenido visual aéreo con vídeo.", "Progetto esterno a Sant Josep de sa Talaia: accessi, paesaggio curato, piscina, viste aperte e contenuto visivo aereo con video.", "Outdoor project in Sant Josep de sa Talaia: access routes, landscaped surroundings, pool, open views and aerial video content."),
+    };
+  }
+
   if (project.slug === "true-bar") {
     return {
       ...project,
@@ -144,6 +190,21 @@ export function CaseStudyTemplate({ project }: { project: Project }) {
           </div>
         </section>
 
+        {media.video && (
+          <section className="container-x mt-6">
+            <div className="grid gap-6 rounded-sm border border-border bg-card p-4 md:grid-cols-[1.4fr_0.8fr] md:p-6">
+              <video className="aspect-video w-full rounded-sm bg-black object-cover" controls playsInline preload="metadata" poster={media.video.poster}>
+                <source src={media.video.src} type="video/mp4" />
+              </video>
+              <div className="flex flex-col justify-center">
+                <div className="eyebrow">Video</div>
+                <h2 className="display-sm mt-3">{media.video.title}</h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{media.video.description}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {media.gallery.length > 0 && (
           <section className="container-x mt-6">
             <div className="grid gap-4 md:grid-cols-4 md:auto-rows-[260px]">
@@ -211,7 +272,7 @@ export function CaseStudyTemplate({ project }: { project: Project }) {
           </div>
         </section>
 
-        {project.placeholder && (
+        {project.placeholder && project.slug !== "casa-sant-josep" && (
           <section className="container-x mt-6">
             <div className="rounded-sm border border-dashed border-primary/40 bg-primary-soft/40 p-5 text-sm">
               Contenido y galería de este proyecto pendientes de completar con Daniele.
