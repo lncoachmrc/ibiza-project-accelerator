@@ -23,6 +23,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY }}
+      VITE_ALLOWED_ADMIN_EMAILS: ${{ vars.VITE_ALLOWED_ADMIN_EMAILS }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +41,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Add SPA fallback for GitHub Pages
+        run: |
+          if [ -f dist/index.html ]; then
+            cp dist/index.html dist/404.html
+          fi
 
       - name: Detect build output directory
         id: detect_output
