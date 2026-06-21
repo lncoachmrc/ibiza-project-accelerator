@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
+import { SignInButton, SignedIn, SignedOut, UserButton, useAuth, useUser } from "@clerk/clerk-react";
 import { SEO } from "@/components/SEO";
 import { ALLOWED_ADMIN_EMAILS, CLERK_ENABLED, hasClientAdminAccess } from "@/lib/config";
+import { fetchCrmLeads } from "@/lib/crm";
 import {
   AlertTriangle,
   BarChart3,
@@ -23,6 +24,12 @@ import {
 } from "lucide-react";
 
 type PreviewLead = {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+  status?: string;
+  priority?: string;
+  score?: number;
   nombre?: string;
   email?: string;
   telefono?: string;
@@ -45,6 +52,37 @@ type PreviewLead = {
   utm_term?: string;
   timestamp?: string;
   ts?: string;
+  nextAction?: string;
+};
+
+type ApiLead = {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+  status?: string;
+  priority?: string;
+  score?: number;
+  nombre?: string;
+  email?: string;
+  telefono?: string;
+  tipo_cliente?: string;
+  tipo_propiedad?: string;
+  zona?: string | null;
+  intervencion?: string;
+  tiene_fotos?: string;
+  tiene_proyecto?: string;
+  plazo?: string;
+  presupuesto?: string | null;
+  mensaje?: string | null;
+  source?: string | null;
+  landing_page?: string | null;
+  referrer?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  next_action?: string | null;
 };
 
 type PipelineStage = {
@@ -55,49 +93,25 @@ type PipelineStage = {
 };
 
 const PIPELINE: PipelineStage[] = [
-  {
-    id: "solicitud",
-    title: "Solicitud recibida",
-    description: "Revisar datos, origen y calidad del lead.",
-    icon: ClipboardList,
-  },
-  {
-    id: "valoracion",
-    title: "Primera valoración",
-    description: "Contactar y pedir fotos, vídeos o planos.",
-    icon: MessageCircle,
-  },
-  {
-    id: "visita",
-    title: "Visita / revisión",
-    description: "Preparar sopralluogo o revisión técnica.",
-    icon: CalendarCheck,
-  },
-  {
-    id: "presupuesto",
-    title: "Presupuesto",
-    description: "Definir alcance, materiales y propuesta.",
-    icon: FileText,
-  },
-  {
-    id: "followup",
-    title: "Follow-up",
-    description: "Dar seguimiento hasta decisión del cliente.",
-    icon: Phone,
-  },
-  {
-    id: "cerrado",
-    title: "Trabajo cerrado",
-    description: "Marcar oportunidad ganada o perdida.",
-    icon: CheckCircle2,
-  },
-  {
-    id: "resena",
-    title: "Reseña / portfolio",
-    description: "Solicitar reseña y valorar case study.",
-    icon: Star,
-  },
+  { id: "solicitud", title: "Solicitud recibida", description: "Revisar datos, origen y calidad del lead.", icon: ClipboardList },
+  { id: "valoracion", title: "Primera valoración", description: "Contactar y pedir fotos, vídeos o planos.", icon: MessageCircle },
+  { id: "visita", title: "Visita / revisión", description: "Preparar sopralluogo o revisión técnica.", icon: CalendarCheck },
+  { id: "presupuesto", title: "Presupuesto", description: "Definir alcance, materiales y propuesta.", icon: FileText },
+  { id: "followup", title: "Follow-up", description: "Dar seguimiento hasta decisión del cliente.", icon: Phone },
+  { id: "cerrado", title: "Trabajo cerrado", description: "Marcar oportunidad ganada o perdida.", icon: CheckCircle2 },
+  { id: "resena", title: "Reseña / portfolio", description: "Solicitar reseña y valorar case study.", icon: Star },
 ];
+
+const STATUS_STAGE_MAP: Record<string, string> = {
+  new: "solicitud",
+  first_contact: "valoracion",
+  visit_review: "visita",
+  proposal: "presupuesto",
+  follow_up: "followup",
+  won: "cerrado",
+  lost: "cerrado",
+  review_portfolio: "resena",
+};
 
 const SERVICE_LABELS: Record<string, string> = {
   "reforma-integral": "Reforma integral",
@@ -131,7 +145,39 @@ const normalise = (value?: string, map?: Record<string, string>) => {
   return map?.[value] ?? value.replaceAll("-", " ");
 };
 
-const getLeadDate = (lead: PreviewLead) => lead.ts ?? lead.timestamp;
+const getLeadDate = (lead: PreviewLead) => lead.created_at ?? lead.updated_at ?? lead.ts ?? lead.timestamp;
+
+function mapApiLead(lead: ApiLead): PreviewLead {
+  return {
+    id: lead.id,
+    created_at: lead.created_at,
+    updated_at: lead.updated_at,
+    status: lead.status,
+    priority: lead.priority,
+    score: typeof lead.score === "number" ? lead.score : undefined,
+    nombre: lead.nombre,
+    email: lead.email,
+    telefono: lead.telefono,
+    tipoCliente: lead.tipo_cliente,
+    tipoPropiedad: lead.tipo_propiedad,
+    zona: lead.zona ?? undefined,
+    intervencion: lead.intervencion,
+    tieneFotos: lead.tiene_fotos,
+    tieneProyecto: lead.tiene_proyecto,
+    plazo: lead.plazo,
+    presupuesto: lead.presupuesto ?? undefined,
+    mensaje: lead.mensaje ?? undefined,
+    source: lead.source ?? undefined,
+    landing_page: lead.landing_page ?? undefined,
+    referrer: lead.referrer ?? undefined,
+    utm_source: lead.utm_source ?? undefined,
+    utm_medium: lead.utm_medium ?? undefined,
+    utm_campaign: lead.utm_campaign ?? undefined,
+    utm_content: lead.utm_content ?? undefined,
+    utm_term: lead.utm_term ?? undefined,
+    nextAction: lead.next_action ?? undefined,
+  };
+}
 
 function readPreviewLeads(): PreviewLead[] {
   try {
@@ -145,6 +191,7 @@ function readPreviewLeads(): PreviewLead[] {
 }
 
 function scoreLead(lead: PreviewLead) {
+  if (typeof lead.score === "number") return lead.score;
   let score = 30;
   if (lead.plazo === "urgente") score += 25;
   if (lead.intervencion === "reforma-integral") score += 15;
@@ -163,6 +210,7 @@ function getPriority(score: number) {
 }
 
 function getNextAction(lead: PreviewLead) {
+  if (lead.nextAction) return lead.nextAction;
   if (lead.plazo === "urgente") return "Contactar por WhatsApp hoy y confirmar necesidad real.";
   if (lead.tieneFotos !== "si") return "Pedir fotos, vídeo o planos antes de preparar valoración.";
   if (lead.tieneProyecto === "no") return "Aclarar si necesita visita previa o apoyo técnico.";
@@ -171,6 +219,7 @@ function getNextAction(lead: PreviewLead) {
 }
 
 function inferStage(lead: PreviewLead) {
+  if (lead.status && STATUS_STAGE_MAP[lead.status]) return STATUS_STAGE_MAP[lead.status];
   if (lead.tieneFotos !== "si") return "valoracion";
   if (lead.tieneProyecto === "si" || lead.tieneProyecto === "en-proceso") return "visita";
   return "solicitud";
@@ -191,18 +240,55 @@ function getWhatsAppHref(lead: PreviewLead) {
 
 function DashboardShell() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const email = user?.primaryEmailAddress?.emailAddress ?? null;
   const hasAccess = hasClientAdminAccess(email);
   const [leads, setLeads] = useState<PreviewLead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<"database" | "preview">("database");
 
   useEffect(() => {
-    setLeads(readPreviewLeads());
-  }, []);
+    if (!hasAccess) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadLeads() {
+      setLoading(true);
+      setLoadError(null);
+
+      try {
+        const token = await getToken();
+        if (!token) throw new Error("Missing Clerk token");
+        const data = await fetchCrmLeads(token);
+        if (cancelled) return;
+        setLeads(data.leads.map((lead) => mapApiLead(lead as ApiLead)));
+        setDataSource("database");
+      } catch (error) {
+        if (cancelled) return;
+        console.error("[dashboard] failed to load CRM leads", error);
+        setLoadError("No se han podido cargar los leads desde PostgreSQL. Revisa Clerk, usuarios autorizados o la API Railway.");
+        setLeads(readPreviewLeads());
+        setDataSource("preview");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadLeads();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken, hasAccess]);
 
   const enrichedLeads = useMemo(() => (
     leads.map((lead, index) => ({
       ...lead,
-      id: `${lead.email || "lead"}-${getLeadDate(lead) || index}`,
+      id: lead.id || `${lead.email || "lead"}-${getLeadDate(lead) || index}`,
       score: scoreLead(lead),
       stage: inferStage(lead),
       nextAction: getNextAction(lead),
@@ -260,9 +346,12 @@ function DashboardShell() {
           <div className="eyebrow">CRM Eivitech</div>
           <h1 className="display-lg mt-4">Dashboard operativa</h1>
           <p className="mt-4 max-w-3xl text-muted-foreground leading-relaxed">
-            Panel privado para convertir solicitudes cualificadas en oportunidades: primera valoración, visita,
-            presupuesto, follow-up, trabajo cerrado, reseña y portfolio.
+            Panel privado conectado al CRM real: formulario, API Railway, PostgreSQL, primera valoración,
+            visita, presupuesto, follow-up, trabajo cerrado, reseña y portfolio.
           </p>
+          <div className="mt-4 inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
+            Fuente de datos: {dataSource === "database" ? "PostgreSQL Railway" : "preview local del navegador"}
+          </div>
         </div>
         <div className="flex items-center gap-3 rounded-sm border border-border bg-card px-4 py-3 shadow-soft">
           <UserButton />
@@ -272,6 +361,12 @@ function DashboardShell() {
           </div>
         </div>
       </div>
+
+      {loadError && (
+        <div className="mb-6 rounded-sm border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {loadError}
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-5">
         <MetricCard icon={ClipboardList} label="Solicitudes" value={stats.total.toString()} helper="Total recibidas" />
@@ -311,9 +406,13 @@ function DashboardShell() {
             </div>
           </div>
 
-          {enrichedLeads.length === 0 ? (
+          {loading ? (
             <div className="rounded-sm border border-dashed border-border bg-background p-8 text-sm text-muted-foreground">
-              Aún no hay solicitudes de prueba en este navegador. Completa el formulario de contacto para verificar el flujo visual.
+              Cargando solicitudes desde el CRM…
+            </div>
+          ) : enrichedLeads.length === 0 ? (
+            <div className="rounded-sm border border-dashed border-border bg-background p-8 text-sm text-muted-foreground">
+              Aún no hay solicitudes guardadas en el CRM. Completa el formulario de contacto para verificar el flujo real.
             </div>
           ) : (
             <div className="space-y-4">
@@ -416,15 +515,15 @@ function DashboardShell() {
 
           <Panel icon={ShieldCheck} title="Privacidad y seguridad">
             <p>
-              La dashboard actual es una preview. Para datos reales: backend seguro, base de datos con control de acceso,
-              política de conservación y validación legal/privacy antes de activar automatizaciones.
+              La dashboard ya está preparada para leer datos del backend Railway/PostgreSQL. Para producción completa,
+              revisa política de conservación, roles, permisos y validación legal/privacy antes de activar automatizaciones.
             </p>
           </Panel>
 
           <Panel icon={Users} title="Usuarios autorizados">
             <p>
-              Acceso previsto para Daniele, Luciano y colaboradores aprobados. La seguridad definitiva debe reforzarse
-              con roles Clerk, Organizations o RLS en backend.
+              Acceso previsto para Daniele, Luciano y colaboradores aprobados. La seguridad real de lectura de datos se aplica
+              en el backend con Clerk y la tabla crm_users.
             </p>
             {ALLOWED_ADMIN_EMAILS.length > 0 && (
               <ul className="mt-3 list-disc pl-5 text-xs text-muted-foreground">

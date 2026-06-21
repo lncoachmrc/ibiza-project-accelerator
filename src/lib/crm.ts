@@ -48,3 +48,18 @@ export async function submitLeadToCrm(payload: CrmLeadPayload) {
 
   return response.json();
 }
+
+export async function fetchCrmLeads(token: string) {
+  const response = await fetch(`${CRM_ENDPOINT}/api/leads`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const message = await response.text().catch(() => "CRM fetch failed");
+    throw new Error(message || "CRM fetch failed");
+  }
+
+  return response.json() as Promise<{ leads: unknown[] }>;
+}
