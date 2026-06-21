@@ -10,8 +10,23 @@ function normaliseLanguage(value?: string | null): Language | null {
   return null;
 }
 
+function readLanguageFromUrl(): Language | "auto" | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("lang");
+  if (value === "auto") return "auto";
+  return normaliseLanguage(value);
+}
+
 export function detectLanguage(): Language {
   if (typeof window === "undefined") return FALLBACK_LANGUAGE;
+
+  const urlLanguage = readLanguageFromUrl();
+  if (urlLanguage === "auto") {
+    window.localStorage.removeItem("eivitech_language");
+  } else if (urlLanguage) {
+    window.localStorage.setItem("eivitech_language", urlLanguage);
+    return urlLanguage;
+  }
 
   const stored = normaliseLanguage(window.localStorage.getItem("eivitech_language"));
   if (stored) return stored;
