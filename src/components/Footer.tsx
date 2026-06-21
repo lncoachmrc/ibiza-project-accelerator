@@ -43,6 +43,11 @@ export function Footer() {
             <li><Link to="/privacidad" className="text-muted-foreground hover:text-foreground">Privacidad</Link></li>
             <li><Link to="/aviso-legal" className="text-muted-foreground hover:text-foreground">Aviso legal</Link></li>
           </ul>
+
+          <div className="eyebrow mb-4 mt-8">Área privada</div>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/dashboard" className="text-muted-foreground hover:text-foreground">CRM privado</Link></li>
+          </ul>
         </div>
       </div>
 
