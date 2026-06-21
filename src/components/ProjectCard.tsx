@@ -3,11 +3,13 @@ import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/data/projects";
 
 const mediaRoot = String.fromCharCode(104,116,116,112,115,58,47,47,101,105,118,105,116,101,99,104,46,99,111,109,47,119,112,45,99,111,110,116,101,110,116,47,117,112,108,111,97,100,115,47,50,48,50,49,47,48,56,47);
+const santJosepCover = `${mediaRoot}casa-lujo-sant-josep-2.jpg`;
 const valverdeCover = `${mediaRoot}terraza-casita-valverde-4-1024x576.jpg`;
 const botafocCover = `${mediaRoot}marina-botafoch-apartamento-04-1024x768.jpg`;
 const trueCover = `${mediaRoot}true-bar-1-576x1024.jpeg`;
 
 function getCover(project: Project) {
+  if (project.slug === "casa-sant-josep") return santJosepCover;
   if (project.slug === "urbanizacion-valverde") return valverdeCover;
   if (project.slug === "apartamento-marina-botafoch") return botafocCover;
   if (project.slug === "true-bar") return trueCover;
@@ -15,15 +17,21 @@ function getCover(project: Project) {
 }
 
 function getDisplayName(project: Project) {
-  return project.slug === "apartamento-marina-botafoch" ? "Apartamento Marina Botafoc" : project.name;
+  if (project.slug === "casa-sant-josep") return "Sant Josep de sa Talaia";
+  if (project.slug === "apartamento-marina-botafoch") return "Apartamento Marina Botafoc";
+  return project.name;
 }
 
 function getDisplayZone(project: Project) {
-  return project.slug === "apartamento-marina-botafoch" ? "Marina Botafoc, Ibiza" : project.zone;
+  if (project.slug === "casa-sant-josep") return "Sant Josep de sa Talaia, Ibiza";
+  if (project.slug === "apartamento-marina-botafoch") return "Marina Botafoc, Ibiza";
+  return project.zone;
 }
 
 function getProjectPath(project: Project) {
-  return project.slug === "apartamento-marina-botafoch" ? "/proyectos/apartamento-marina-botafoc" : `/proyectos/${project.slug}`;
+  if (project.slug === "casa-sant-josep") return "/proyectos/sant-josep-de-sa-talaia";
+  if (project.slug === "apartamento-marina-botafoch") return "/proyectos/apartamento-marina-botafoc";
+  return `/proyectos/${project.slug}`;
 }
 
 export function ProjectCard({ project, priority = false }: { project: Project; priority?: boolean }) {
