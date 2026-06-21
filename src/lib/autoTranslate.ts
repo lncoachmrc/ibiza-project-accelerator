@@ -345,7 +345,12 @@ function translateText(value: string) {
   const entries = dictionaryEntries();
   const compact = normalise(value);
   const exact = entries.find(([source]) => normalise(source) === compact);
-  if (exact) return value.replace(compact, exact[1]);
+
+  if (exact) {
+    const prefix = value.match(/^\s*/)?.[0] || "";
+    const suffix = value.match(/\s*$/)?.[0] || "";
+    return `${prefix}${exact[1]}${suffix}`;
+  }
 
   let output = value;
   for (const [source, target] of entries) {
