@@ -1,14 +1,16 @@
+import { tr } from "@/lib/i18n";
+
 export const SITE = {
   name: "Eivitech",
   brand: "Eivitech Ibiza",
-  tagline: "Reformas · Instalaciones · Acabados · Ibiza",
+  tagline: tr("Reformas · Instalaciones · Acabados · Ibiza", "Ristrutturazioni · Impianti · Finiture · Ibiza", "Renovations · Installations · Finishes · Ibiza"),
   phone: "+34 674 735 188",
   phoneHref: "tel:+34674735188",
   whatsappNumber: "34674735188",
   email: "info@eivitech.com",
   emailHref: "mailto:info@eivitech.com",
-  location: "Ibiza, España",
-  locale: "es-ES",
+  location: tr("Ibiza, España", "Ibiza, Spagna", "Ibiza, Spain"),
+  locale: tr("es-ES", "it-IT", "en-GB"),
 } as const;
 
 export const whatsappUrl = (message?: string) => {
