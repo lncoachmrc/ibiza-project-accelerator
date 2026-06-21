@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { captureUtm } from "@/lib/utm";
 import { track } from "@/lib/tracking";
+import { submitLeadToCrm } from "@/lib/crm";
 
 const schema = z.object({
   nombre: z.string().trim().min(2, "Indica tu nombre").max(80),
@@ -60,19 +61,17 @@ export function LeadQualificationForm({ source = "contacto" }: { source?: string
   const onSubmit = async (data: LeadFormData) => {
     setSubmitting(true);
     const utm = captureUtm();
-    const payload = { ...data, ...utm, source };
+    const payload = { ...data, ...utm, source, timestamp: new Date().toISOString() };
     track("form_submit", { source });
     track("quote_request", { source, tipoCliente: data.tipoCliente, intervencion: data.intervencion });
 
-    // TODO: integrazione CRM/webhook (Google Sheets / Airtable / Make / Zapier).
-    // Por ahora: log + sessionStorage para no perder el lead durante pruebas.
     try {
-      const existing = JSON.parse(sessionStorage.getItem("eivitech_leads") || "[]");
-      existing.push({ ...payload, ts: new Date().toISOString() });
-      sessionStorage.setItem("eivitech_leads", JSON.stringify(existing));
-    } catch { /* noop */ }
-    // eslint-disable-next-line no-console
-    console.info("[lead] nueva solicitud", payload);
+      await submitLeadToCrm(payload);
+    } catch (error) {
+      track("form_error", { source, reason: "crm_submit_failed" });
+      // eslint-disable-next-line no-console
+      console.error("[lead] CRM submit failed", error);
+    }
 
     await new Promise((r) => setTimeout(r, 400));
     navigate("/gracias");
