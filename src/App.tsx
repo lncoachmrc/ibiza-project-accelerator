@@ -18,6 +18,7 @@ import LandingMeta from "./pages/LandingMeta.tsx";
 import LandingEN from "./pages/LandingEN.tsx";
 import Privacidad from "./pages/Privacidad.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -39,10 +40,13 @@ const router = createBrowserRouter([
       { path: "/renovation-company-ibiza", element: <LandingEN /> },
       { path: "/privacidad", element: <Privacidad /> },
       { path: "/aviso-legal", element: <AvisoLegal /> },
+      { path: "/dashboard", element: <Dashboard /> },
       { path: "*", element: <NotFound /> },
     ],
   },
-]);
+], {
+  basename: import.meta.env.BASE_URL,
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
