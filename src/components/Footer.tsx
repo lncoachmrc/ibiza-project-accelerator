@@ -19,6 +19,13 @@ export function Footer() {
             <a href={SITE.emailHref} className="block hover:text-primary">{SITE.email}</a>
             <div className="text-muted-foreground">{SITE.location}</div>
           </div>
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>{tr("Idioma", "Lingua", "Language")}</span>
+            <a href="?lang=auto" className="rounded-sm border border-border px-2 py-1 hover:bg-background">Auto</a>
+            <a href="?lang=es" className="rounded-sm border border-border px-2 py-1 hover:bg-background">ES</a>
+            <a href="?lang=it" className="rounded-sm border border-border px-2 py-1 hover:bg-background">IT</a>
+            <a href="?lang=en" className="rounded-sm border border-border px-2 py-1 hover:bg-background">EN</a>
+          </div>
         </div>
 
         <div>
