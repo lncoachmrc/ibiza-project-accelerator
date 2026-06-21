@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import { whatsappUrl } from "@/data/site";
 import { track } from "@/lib/tracking";
+import { tr } from "@/lib/i18n";
 
 export function CTASection({
-  eyebrow = "Siguiente paso",
-  title = "Cuéntanos qué propiedad quieres reformar",
-  description = "Una primera valoración sin compromiso. Cuanto más nos cuentes sobre el proyecto, mejor podremos orientarte.",
-  primary = { label: "Solicitar valoración", to: "/contacto" },
-  whatsappMessage = "Hola, me gustaría solicitar una valoración para mi proyecto en Ibiza.",
+  eyebrow = tr("Siguiente paso", "Prossimo passo", "Next step"),
+  title = tr("Cuéntanos qué propiedad quieres reformar", "Raccontaci quale proprietà vuoi ristrutturare", "Tell us which property you want to renovate"),
+  description = tr("Una primera valoración sin compromiso. Cuanto más nos cuentes sobre el proyecto, mejor podremos orientarte.", "Una prima valutazione senza impegno. Più ci racconti del progetto, meglio potremo orientarti.", "An initial assessment with no obligation. The more you tell us about the project, the better we can guide you."),
+  primary = { label: tr("Solicitar valoración", "Richiedi una valutazione", "Request an assessment"), to: "/contacto" },
+  whatsappMessage = tr("Hola, me gustaría solicitar una valoración para mi proyecto en Ibiza.", "Ciao, vorrei richiedere una valutazione per il mio progetto a Ibiza.", "Hello, I would like to request an assessment for my project in Ibiza."),
   dark = true,
 }: {
   eyebrow?: string;
@@ -44,7 +45,7 @@ export function CTASection({
                   : "border-foreground/20 text-foreground hover:bg-foreground/5"
               }`}
             >
-              Hablar por WhatsApp
+              {tr("Hablar por WhatsApp", "Parla su WhatsApp", "Chat on WhatsApp")}
             </a>
           </div>
         </div>
