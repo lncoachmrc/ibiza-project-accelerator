@@ -43,10 +43,18 @@ const Index = () => {
       />
 
       {/* HERO */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden bg-ink text-cream">
         <div className="absolute inset-0 -z-10">
-          <img src={heroImg} alt="Interior reformado en Ibiza con microcemento y madera" width={1920} height={1080} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
+          <img
+            src={heroImg}
+            alt="Interior reformado en Ibiza con microcemento y madera"
+            width={1920}
+            height={1080}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/70 to-ink/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
+          <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
         </div>
 
         <div className="container-x pt-24 md:pt-32 pb-20 md:pb-28">
@@ -54,13 +62,14 @@ const Index = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-5xl"
           >
-            <div className="eyebrow">{SITE.tagline}</div>
-            <h1 className="display-xl mt-5 max-w-5xl">
+            <div className="eyebrow text-cream/75">{SITE.tagline}</div>
+            <h1 className="mt-5 max-w-5xl font-display text-[clamp(2.6rem,5.7vw,5.15rem)] font-medium leading-[1.03] tracking-tight text-cream drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">
               Reformas e instalaciones en Ibiza para propiedades que necesitan{" "}
-              <span className="italic text-primary">gestión, calidad y detalle</span>
+              <span className="italic text-[#f2c7a6]">gestión, calidad y detalle</span>
             </h1>
-            <p className="body-lg mt-6 max-w-2xl">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream/90 drop-shadow-[0_1px_14px_rgba(0,0,0,0.55)] sm:text-lg md:text-xl">
               Coordinamos reformas, instalaciones y acabados para viviendas, apartamentos, villas y locales
               comerciales, acompañando al cliente desde la idea inicial hasta el último detalle.
             </p>
@@ -68,13 +77,13 @@ const Index = () => {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/contacto"
-                className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition shadow-soft"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-4 text-sm font-medium text-primary-foreground shadow-elevated transition hover:bg-primary/90"
               >
                 Solicitar valoración <ArrowRight size={16} />
               </Link>
               <Link
                 to="/proyectos"
-                className="inline-flex items-center rounded-sm border border-foreground/20 bg-background/60 px-6 py-4 text-sm font-medium backdrop-blur hover:bg-background"
+                className="inline-flex items-center rounded-sm border border-cream/35 bg-cream/90 px-6 py-4 text-sm font-medium text-ink shadow-soft backdrop-blur hover:bg-cream"
               >
                 Ver proyectos
               </Link>
@@ -83,14 +92,14 @@ const Index = () => {
                 onClick={() => track("whatsapp_click", { source: "hero" })}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-sm bg-[#25D366] px-5 py-4 text-sm font-medium text-white"
+                className="inline-flex items-center gap-2 rounded-sm bg-[#25D366] px-5 py-4 text-sm font-medium text-white shadow-soft"
               >
                 <MessageCircle size={16} /> WhatsApp
               </a>
               <a
                 href={SITE.phoneHref}
                 onClick={() => track("phone_click", { source: "hero" })}
-                className="inline-flex items-center gap-2 text-sm text-foreground/80 hover:text-foreground px-2 py-4"
+                className="inline-flex items-center gap-2 px-2 py-4 text-sm text-cream/90 drop-shadow hover:text-cream"
               >
                 <Phone size={14} /> {SITE.phone}
               </a>
