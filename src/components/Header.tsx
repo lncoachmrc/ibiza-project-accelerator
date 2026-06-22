@@ -40,7 +40,7 @@ export function Header() {
           <img
             src={LOGO_EIVITECH}
             alt="Eivitech instalaciones y reformas"
-            className="h-8 w-auto max-w-[165px] object-contain md:h-10 md:max-w-[210px]"
+            className="logo-on-light block h-auto w-[165px] object-contain md:w-[210px]"
           />
         </Link>
 
