@@ -10,9 +10,8 @@ import { SERVICES } from "@/data/services";
 import { PROJECTS } from "@/data/projects";
 import { GENERAL_FAQS } from "@/data/faqs";
 import { orgJsonLd, faqJsonLd } from "@/lib/seo";
-import { whatsappUrl, SITE } from "@/data/site";
-import { track } from "@/lib/tracking";
-import { ArrowRight, Phone, MessageCircle, Home, Building2, Store, Wrench, Lightbulb, TreePine } from "lucide-react";
+import { SITE } from "@/data/site";
+import { ArrowRight, Home, Building2, Store, Wrench, Lightbulb, TreePine } from "lucide-react";
 import heroImg from "@/assets/hero-home.jpg";
 import materiales from "@/assets/materiales.jpg";
 
@@ -87,22 +86,6 @@ const Index = () => {
               >
                 Ver proyectos
               </Link>
-              <a
-                href={whatsappUrl()}
-                onClick={() => track("whatsapp_click", { source: "hero" })}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-sm bg-[#25D366] px-5 py-4 text-sm font-medium text-white shadow-soft"
-              >
-                <MessageCircle size={16} /> WhatsApp
-              </a>
-              <a
-                href={SITE.phoneHref}
-                onClick={() => track("phone_click", { source: "hero" })}
-                className="inline-flex items-center gap-2 px-2 py-4 text-sm text-cream/90 drop-shadow hover:text-cream"
-              >
-                <Phone size={14} /> {SITE.phone}
-              </a>
             </div>
           </motion.div>
         </div>
@@ -257,8 +240,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      <CTASection />
     </>
   );
 };
