@@ -13,7 +13,7 @@ export function Footer() {
             <img
               src={LOGO_EIVITECH}
               alt="Eivitech instalaciones y reformas"
-              className="h-12 w-auto max-w-[230px] object-contain md:h-14 md:max-w-[280px]"
+              className="logo-on-light block h-auto w-[230px] object-contain md:w-[280px]"
             />
           </Link>
           <p className="mt-4 max-w-md text-sm text-muted-foreground leading-relaxed">
