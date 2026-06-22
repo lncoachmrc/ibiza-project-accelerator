@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Project } from "@/data/projects";
 import { SEO } from "@/components/SEO";
@@ -151,6 +152,65 @@ function getProjectPresentation(project: Project) {
   return project;
 }
 
+function ProjectVideo({ video }: { video: NonNullable<ProjectMedia["video"]> }) {
+  const [open, setOpen] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <section className="container-x mt-6">
+      <div className="grid gap-6 rounded-sm border border-border bg-card p-4 md:grid-cols-[1.4fr_0.8fr] md:p-6">
+        <div className="relative overflow-hidden rounded-sm bg-black">
+          <video
+            className="aspect-video w-full object-cover"
+            controls
+            playsInline
+            preload="metadata"
+            poster={video.poster}
+            onError={() => setHasError(true)}
+          >
+            <source src={video.src} type="video/mp4" />
+          </video>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="absolute bottom-4 right-4 rounded-sm bg-background/95 px-4 py-2 text-xs font-medium text-foreground shadow-lg transition hover:bg-background"
+          >
+            {tr("Ver grande", "Vedi grande", "View larger")}
+          </button>
+        </div>
+        <div className="flex flex-col justify-center">
+          <div className="eyebrow">Video</div>
+          <h2 className="display-sm mt-3">{video.title}</h2>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{video.description}</p>
+          {hasError && (
+            <p className="mt-4 rounded-sm border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+              {tr("El vídeo no está disponible todavía. Revisa que el archivo esté cargado con el nombre exacto sant-josep-video.mp4.", "Il video non è ancora disponibile. Controlla che il file sia caricato con il nome esatto sant-josep-video.mp4.", "The video is not available yet. Check that the file is uploaded with the exact name sant-josep-video.mp4.")}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true">
+          <button className="absolute inset-0 cursor-default" type="button" aria-label={tr("Cerrar vídeo", "Chiudi video", "Close video")} onClick={() => setOpen(false)} />
+          <div className="relative z-10 w-full max-w-6xl translate-y-0 rounded-sm bg-black shadow-2xl animate-in zoom-in-95 fade-in duration-300">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="absolute -top-12 right-0 rounded-sm bg-white/15 px-4 py-2 text-sm text-white backdrop-blur transition hover:bg-white/25"
+            >
+              {tr("Cerrar", "Chiudi", "Close")}
+            </button>
+            <video className="aspect-video w-full rounded-sm bg-black" controls autoPlay playsInline poster={video.poster}>
+              <source src={video.src} type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function CaseStudyTemplate({ project }: { project: Project }) {
   const presentation = getProjectPresentation(project);
   const others = PROJECTS.filter((p) => p.slug !== project.slug).slice(0, 3);
@@ -190,20 +250,7 @@ export function CaseStudyTemplate({ project }: { project: Project }) {
           </div>
         </section>
 
-        {media.video && (
-          <section className="container-x mt-6">
-            <div className="grid gap-6 rounded-sm border border-border bg-card p-4 md:grid-cols-[1.4fr_0.8fr] md:p-6">
-              <video className="aspect-video w-full rounded-sm bg-black object-cover" controls playsInline preload="metadata" poster={media.video.poster}>
-                <source src={media.video.src} type="video/mp4" />
-              </video>
-              <div className="flex flex-col justify-center">
-                <div className="eyebrow">Video</div>
-                <h2 className="display-sm mt-3">{media.video.title}</h2>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{media.video.description}</p>
-              </div>
-            </div>
-          </section>
-        )}
+        {media.video && <ProjectVideo video={media.video} />}
 
         {media.gallery.length > 0 && (
           <section className="container-x mt-6">
