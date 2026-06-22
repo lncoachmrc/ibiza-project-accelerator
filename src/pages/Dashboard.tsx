@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { SignInButton, SignOutButton, SignedIn, SignedOut, UserButton, useAuth, useUser } from "@clerk/clerk-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -471,7 +471,7 @@ function LeadsBoard({ type, leads, actions, loading, savingId, notes, setNotes, 
   loading: boolean;
   savingId: string | null;
   notes: Record<string, string>;
-  setNotes: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setNotes: Dispatch<SetStateAction<Record<string, string>>>;
   onAction: (lead: DashboardLead, action: PipelineAction) => Promise<void>;
 }) {
   const emptyText = type === "partner"
