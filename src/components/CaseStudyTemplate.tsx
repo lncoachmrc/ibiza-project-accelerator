@@ -32,7 +32,7 @@ function getProjectMedia(project: Project): ProjectMedia {
         { src: mediaUrl("casa-lujo-sant-josep-3.jpg"), alt: tr("Panorámica del entorno natural de Sant Josep con vistas al valle", "Panoramica dell'ambiente naturale di Sant Josep con vista sulla valle", "Panoramic natural setting in Sant Josep with valley views") },
       ],
       video: {
-        src: localMediaUrl("media/projects/sant-josep-de-sa-talaia/sant-josep-video.mp4"),
+        src: localMediaUrl("media/projects/sant-josep-de-sa-talaia/casa-sant-josep.mp4"),
         poster: hero,
         title: tr("Recorrido en vídeo de la finca", "Tour video della proprietà", "Video walkthrough of the estate"),
         description: tr("Un vídeo 16:9 ayuda a entender la escala real del entorno, los accesos, la piscina y la relación de la vivienda con el paisaje.", "Un video 16:9 aiuta a comprendere la scala reale dell'ambiente, gli accessi, la piscina e il rapporto della casa con il paesaggio.", "A 16:9 video helps show the true scale of the setting, access, pool and the relationship between the house and landscape."),
@@ -153,6 +153,14 @@ function ExpandIcon() {
   );
 }
 
+function PlayIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  );
+}
+
 function ProjectVideo({ video }: { video: VideoData }) {
   const [open, setOpen] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -160,39 +168,41 @@ function ProjectVideo({ video }: { video: VideoData }) {
   return (
     <section className="container-x mt-6">
       <div className="grid gap-6 rounded-sm border border-border bg-card p-4 md:grid-cols-[1.4fr_0.8fr] md:p-6">
-        <div className="relative overflow-hidden rounded-sm bg-black">
-          <video className="aspect-video w-full object-cover" controls playsInline preload="metadata" poster={video.poster} onError={() => setHasError(true)}>
-            <VideoSources src={video.src} />
-          </video>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label={tr("Ver vídeo grande", "Vedi video grande", "View larger video")}
-            className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-sm border border-dashed border-white/80 bg-black/35 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/55"
-          >
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group relative block aspect-video w-full overflow-hidden rounded-sm bg-black text-left"
+          aria-label={tr("Abrir vídeo del proyecto", "Apri il video del progetto", "Open project video")}
+        >
+          <img src={video.poster} alt={video.title} className="h-full w-full object-cover opacity-85 transition duration-500 group-hover:scale-[1.02] group-hover:opacity-70" />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+          <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-xl transition group-hover:scale-105">
+            <PlayIcon />
+          </span>
+          <span className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-sm border border-dashed border-white/80 bg-black/35 text-white shadow-lg backdrop-blur-sm transition group-hover:bg-black/55">
             <ExpandIcon />
-          </button>
-        </div>
+          </span>
+        </button>
         <div className="flex flex-col justify-center">
           <div className="eyebrow">Video</div>
           <h2 className="display-sm mt-3">{video.title}</h2>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{video.description}</p>
           {hasError && (
             <p className="mt-4 rounded-sm border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
-              {tr("El vídeo no está disponible todavía. Revisa que el archivo esté cargado con el nombre exacto sant-josep-video.mp4 dentro de public/media/projects/sant-josep-de-sa-talaia/.", "Il video non è ancora disponibile. Controlla che il file sia caricato con il nome esatto sant-josep-video.mp4 dentro public/media/projects/sant-josep-de-sa-talaia/.", "The video is not available yet. Check that the file is uploaded with the exact name sant-josep-video.mp4 inside public/media/projects/sant-josep-de-sa-talaia/.")}
+              {tr("El vídeo no está disponible todavía. Revisa que el archivo casa-sant-josep.mp4 esté cargado y desplegado correctamente.", "Il video non è ancora disponibile. Controlla che il file casa-sant-josep.mp4 sia caricato e pubblicato correttamente.", "The video is not available yet. Check that casa-sant-josep.mp4 is uploaded and deployed correctly.")}
             </p>
           )}
         </div>
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true">
           <button className="absolute inset-0 cursor-default" type="button" aria-label={tr("Cerrar vídeo", "Chiudi video", "Close video")} onClick={() => setOpen(false)} />
-          <div className="relative z-10 w-full max-w-6xl translate-y-0 rounded-sm bg-black shadow-2xl animate-in zoom-in-95 fade-in duration-300">
+          <div className="relative z-10 w-full max-w-6xl rounded-sm bg-black shadow-2xl animate-in zoom-in-95 fade-in duration-300">
             <button type="button" onClick={() => setOpen(false)} className="absolute -top-12 right-0 rounded-sm bg-white/15 px-4 py-2 text-sm text-white backdrop-blur transition hover:bg-white/25">
               {tr("Cerrar", "Chiudi", "Close")}
             </button>
-            <video className="aspect-video w-full rounded-sm bg-black" controls autoPlay playsInline poster={video.poster} onError={() => setHasError(true)}>
+            <video className="aspect-video w-full rounded-sm bg-black" controls autoPlay playsInline preload="auto" poster={video.poster} onError={() => setHasError(true)}>
               <VideoSources src={video.src} />
             </video>
           </div>
