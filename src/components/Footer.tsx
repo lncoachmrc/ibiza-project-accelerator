@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { SITE } from "@/data/site";
 import { SERVICES } from "@/data/services";
-import { LOGO_EIVITECH } from "@/assets/logo-eivitech";
+import { EivitechLogo } from "@/components/EivitechLogo";
 import { tr } from "@/lib/i18n";
 
 export function Footer() {
@@ -10,11 +10,7 @@ export function Footer() {
       <div className="container-x py-16 grid gap-12 md:grid-cols-4">
         <div className="md:col-span-2">
           <Link to="/" className="inline-flex shrink-0 items-center" aria-label="Eivitech home">
-            <img
-              src={LOGO_EIVITECH}
-              alt="Eivitech instalaciones y reformas"
-              className="logo-on-light block h-auto w-[230px] object-contain md:w-[280px]"
-            />
+            <EivitechLogo className="h-auto w-[230px] md:w-[280px]" />
           </Link>
           <p className="mt-4 max-w-md text-sm text-muted-foreground leading-relaxed">
             {tr("Coordinamos reformas, instalaciones y acabados en Ibiza.", "Coordiniamo ristrutturazioni, impianti e finiture a Ibiza.", "We coordinate renovations, installations and finishes in Ibiza.")}
