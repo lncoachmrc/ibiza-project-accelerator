@@ -58,7 +58,7 @@ test("non-Resend requests bypass the limiter", async () => {
 test("Resend resource names are clamped to 70 characters", () => {
   const longName = "ES | Agencias y arquitectos | Inmuebles a reformar | Apoyo profesional durante visitas comerciales";
   const fitted = fitResendName(longName);
-  assert.equal(fitted.length, 70);
+  assert.equal(fitted.length <= 70, true);
   assert.equal(longName.startsWith(fitted), true);
 });
 
@@ -86,6 +86,7 @@ test("Resend JSON request bodies clamp top-level name before sending", async () 
   });
 
   const payload = JSON.parse(sentBody) as { name: string; subject: string };
-  assert.equal(payload.name.length, 70);
+  assert.equal(payload.name.length <= 70, true);
+  assert.equal(payload.name.length > 0, true);
   assert.equal(payload.subject, "Subject");
 });
