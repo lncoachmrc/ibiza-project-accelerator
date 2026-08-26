@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "test": "tsx --test src/*.test.ts",
     "build": "tsc",
-    "start": "MARKETING_MAX_RECIPIENTS=${MARKETING_CAMPAIGN_MAX_RECIPIENTS:-100} node dist/seedInternalTestSegment.js && MARKETING_MAX_RECIPIENTS=${MARKETING_CAMPAIGN_MAX_RECIPIENTS:-100} node dist/server.js"
+    "start": "MARKETING_MAX_RECIPIENTS=${MARKETING_CAMPAIGN_MAX_RECIPIENTS:-100} node --import ./dist/resendFetchLimiter.js dist/seedInternalTestSegment.js && MARKETING_MAX_RECIPIENTS=${MARKETING_CAMPAIGN_MAX_RECIPIENTS:-100} node --import ./dist/resendFetchLimiter.js dist/server.js"
   },
   "dependencies": {
     "@clerk/express": "^2.1.30",
