@@ -1,4 +1,5 @@
 const RESEND_API_ORIGIN = "https://api.resend.com";
+const RESEND_NAME_MAX_LENGTH = 70;
 
 type FetchInput = Parameters<typeof fetch>[0];
 type FetchInit = Parameters<typeof fetch>[1];
@@ -27,6 +28,42 @@ function isResendRequest(input: FetchInput) {
     return new URL(requestUrl(input)).origin === RESEND_API_ORIGIN;
   } catch {
     return false;
+  }
+}
+
+export function fitResendName(value: string, maxLength = RESEND_NAME_MAX_LENGTH) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  // CRM segment names end with a stable short id. Preserve that suffix when truncating
+  // so two long, similarly-named local segments do not collapse to the same remote name.
+  const suffixMatch = normalized.match(/(\s+—\s+[A-Za-z0-9_-]{6,16})$/);
+  if (suffixMatch) {
+    const suffix = suffixMatch[1];
+    const base = normalized.slice(0, -suffix.length);
+    const maxBaseLength = Math.max(1, maxLength - suffix.length);
+    return `${base.slice(0, maxBaseLength).trimEnd()}${suffix}`.slice(0, maxLength);
+  }
+
+  return normalized.slice(0, maxLength).trimEnd();
+}
+
+function sanitizeResendJsonName(init?: FetchInit): FetchInit | undefined {
+  if (!init || typeof init.body !== "string") return init;
+
+  try {
+    const parsed = JSON.parse(init.body) as Record<string, unknown>;
+    if (!parsed || Array.isArray(parsed) || typeof parsed.name !== "string") return init;
+
+    const safeName = fitResendName(parsed.name);
+    if (safeName === parsed.name) return init;
+
+    return {
+      ...init,
+      body: JSON.stringify({ ...parsed, name: safeName }),
+    };
+  } catch {
+    return init;
   }
 }
 
@@ -61,13 +98,15 @@ export function createResendRateLimitedFetch(
       return baseFetch(input, init);
     }
 
+    const safeInit = sanitizeResendJsonName(init);
+
     const run = async () => {
       const waitMs = Math.max(0, nextAllowedAt - now());
       if (waitMs > 0) await sleep(waitMs);
       nextAllowedAt = now() + minIntervalMs;
 
       for (let attempt = 0; ; attempt += 1) {
-        const response = await baseFetch(input, init);
+        const response = await baseFetch(input, safeInit);
         if (response.status !== 429 || attempt >= max429Retries) {
           return response;
         }
